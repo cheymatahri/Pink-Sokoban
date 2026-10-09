@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 public class Sokoban {
 
     // ==================== DONNÉES GLOBALES ====================
@@ -9,25 +11,54 @@ public class Sokoban {
     static final char CAISSE_OK= '*';
 
     static final String[][] NIVEAUX = {
-        { // Niveau 1 — poussée horizontale
-            "##########",
-            "#        #",
-            "# @$ .   #",
-            "#        #",
-            "#        #",
-            "#        #",
-            "##########"
-        }
+            { // Niveau 1
+                    "##########",
+                    "#        #",
+                    "# @$ .   #",
+                    "#        #",
+                    "#        #",
+                    "#        #",
+                    "##########"
+            }
     };
 
-    // ==================== MAIN (temporaire, le temps que Cheyma teste) ====================
+    // ==================== MAIN ====================
     public static void main(String[] args) {
-        char[][] grille = chargerNiveau(1);
-        afficherGrille(grille);
-        // menu();  ← décommenter quand Axelle aura écrit menu()
+        menu();
     }
 
-    // ==================== MÉTHODES (CHEYMA) ====================
+    // ==================== PARTIE AXELLE — MENU ====================
+    static void menu() {
+        Scanner sc = new Scanner(System.in);
+        int choix = 0;
+
+        while (choix != 4) {
+            System.out.println("======== SOKOBAN ========");
+            System.out.println("1. Niveau 1");
+            System.out.println("4. Quitter");
+            System.out.print("Votre choix : ");
+
+            if (sc.hasNextInt()) {
+                choix = sc.nextInt();
+            } else {
+                sc.next();
+                choix = 0;
+            }
+
+            if (choix == 1) {
+                char[][] grille = chargerNiveau(1);
+                afficherGrille(grille);
+            } else if (choix == 4) {
+                System.out.println("Au revoir !");
+            } else {
+                System.out.println("Choix invalide.");
+            }
+        }
+
+        sc.close();
+    }
+
+    // ==================== PARTIE CHEYMA — JEU ====================
     static void afficherGrille(char[][] grille) {
         for (int i = 0; i < grille.length; i++) {
             for (int j = 0; j < grille[i].length; j++) {
@@ -54,12 +85,61 @@ public class Sokoban {
     static void jouer() { }
     static void resoudreDFS(char[][] grille) { }
 
-    // ==================== MÉTHODES (AXELLE) — à remplir par Axelle ====================
-    // static void menu() { ... }
-    // static void resoudreBFS(char[][] grille) { ... }
-    // static void comparerDFS_BFS(char[][] grille) { ... }
-    // static class State { ... }
-    // static class Pile { ... }
-    // static class File { ... }
-    // static class EnsembleEtats { ... }
+    // ==================== PARTIE AXELLE — SOLVEUR ====================
+    static class State {
+        int joueurX, joueurY;
+        int[][] caisses;
+
+        State(int jx, int jy, int[][] c) {
+            this.joueurX = jx;
+            this.joueurY = jy;
+            this.caisses = c;
+        }
+    }
+
+    static class File {
+        private State[] tab;
+        private int debut, fin, taille;
+
+        File(int capacite) {
+            tab = new State[capacite];
+            debut = 0;
+            fin = 0;
+            taille = 0;
+        }
+
+        void enqueue(State s) {
+            if (taille == tab.length) {
+                System.out.println("File pleine !");
+                return;
+            }
+            tab[fin] = s;
+            fin = (fin + 1) % tab.length;
+            taille++;
+        }
+
+        State dequeue() {
+            if (taille == 0) return null;
+            State s = tab[debut];
+            debut = (debut + 1) % tab.length;
+            taille--;
+            return s;
+        }
+
+        boolean isEmpty() {
+            return taille == 0;
+        }
+
+        int size() {
+            return taille;
+        }
+    }
+
+    static void resoudreBFS(char[][] grille) {
+        System.out.println("BFS : à implémenter");
+    }
+
+    static void comparerDFS_BFS(char[][] grille) {
+        System.out.println("Comparaison DFS/BFS : à implémenter");
+    }
 }
