@@ -24,8 +24,7 @@ public class Sokoban {
 
     // ==================== MAIN ====================
     public static void main(String[] args) {
-        char[][] grille = chargerNiveau(1);
-        resoudreBFS(grille);
+        menu();
     }
 
     // ==================== PARTIE AXELLE — MENU ====================
