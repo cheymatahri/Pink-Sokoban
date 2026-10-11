@@ -77,13 +77,163 @@ public class Sokoban {
         return grille;
     }
 
-    static boolean deplacementValide(char[][] grille, int x, int y, char dir) { return false; }
-    static boolean peutPousser(char[][] grille, int x, int y, char dir) { return false; }
-    static void deplacerCaisse(char[][] grille, int x, int y, char dir) { }
-    static void deplacerJoueur(char[][] grille, char dir) { }
-    static boolean partieTerminee(char[][] grille) { return false; }
-    static void jouer() { }
+
+
+
+
+
+
+
+static boolean deplacementValide(char[][] grille, int x, int y, char dir) {
+    int nx = x, ny = y;
+    switch (dir) {
+        case 'z': nx = x - 1; break;
+        case 's': nx = x + 1; break;
+        case 'q': ny = y - 1; break;
+        case 'd': ny = y + 1; break;
+        default: return false;
+    }
+    if (nx < 0 || nx >= grille.length || ny < 0 || ny >= grille[0].length) return false;
+    if (grille[nx][ny] == MUR) return false;
+    if (grille[nx][ny] == CAISSE || grille[nx][ny] == CAISSE_OK) {
+        return peutPousser(grille, x, y, dir);
+    }
+    return true;
+}
+
+static boolean peutPousser(char[][] grille, int x, int y, char dir) {
+    int cx = x, cy = y;
+    switch (dir) {
+        case 'z': cx = x - 1; break;
+        case 's': cx = x + 1; break;
+        case 'q': cy = y - 1; break;
+        case 'd': cy = y + 1; break;
+        default: return false;
+    }
+    int dx = cx, dy = cy;
+    switch (dir) {
+        case 'z': dx = cx - 1; break;
+        case 's': dx = cx + 1; break;
+        case 'q': dy = cy - 1; break;
+        case 'd': dy = cy + 1; break;
+    }
+    if (dx < 0 || dx >= grille.length || dy < 0 || dy >= grille[0].length) return false;
+    return grille[dx][dy] != MUR && grille[dx][dy] != CAISSE && grille[dx][dy] != CAISSE_OK;
+}
+
+static void deplacerCaisse(char[][] grille, int x, int y, char dir) {
+    int cx = x, cy = y;
+    switch (dir) {
+        case 'z': cx = x - 1; break;
+        case 's': cx = x + 1; break;
+        case 'q': cy = y - 1; break;
+        case 'd': cy = y + 1; break;
+    }
+    int dx = cx, dy = cy;
+    switch (dir) {
+        case 'z': dx = cx - 1; break;
+        case 's': dx = cx + 1; break;
+        case 'q': dy = cy - 1; break;
+        case 'd': dy = cy + 1; break;
+    }
+    if (grille[dx][dy] == OBJECTIF) {
+        grille[dx][dy] = CAISSE_OK;
+    } else {
+        grille[dx][dy] = CAISSE;
+    }
+    if (grille[cx][cy] == CAISSE_OK) {
+        grille[cx][cy] = OBJECTIF;
+    } else {
+        grille[cx][cy] = LIBRE;
+    }
+}
+
+static void deplacerJoueur(char[][] grille, char dir) {
+    int x = -1, y = -1;
+    for (int i = 0; i < grille.length; i++) {
+        for (int j = 0; j < grille[i].length; j++) {
+            if (grille[i][j] == JOUEUR) {
+                x = i; y = j;
+            }
+        }
+    }
+    if (x == -1) return;
+    if (!deplacementValide(grille, x, y, dir)) return;
+
+    int nx = x, ny = y;
+    switch (dir) {
+        case 'z': nx = x - 1; break;
+        case 's': nx = x + 1; break;
+        case 'q': ny = y - 1; break;
+        case 'd': ny = y + 1; break;
+    }
+    if (grille[nx][ny] == CAISSE || grille[nx][ny] == CAISSE_OK) {
+        deplacerCaisse(grille, x, y, dir);
+    }
+    grille[x][y] = LIBRE;
+    grille[nx][ny] = JOUEUR;
+}
+
+static boolean partieTerminee(char[][] grille) {
+    for (int i = 0; i < grille.length; i++) {
+        for (int j = 0; j < grille[i].length; j++) {
+            if (grille[i][j] == CAISSE) return false;
+        }
+    }
+    return true;
+}
+
+static void jouer() {
+    char[][] grille = chargerNiveau(1);
+    Scanner sc = new Scanner(System.in);
+    int mouvements = 0;
+
+    while (true) {
+        afficherGrille(grille);
+        if (partieTerminee(grille)) {
+            System.out.println("Victoire !");
+            System.out.println("Nombre de mouvements : " + mouvements);
+            break;
+        }
+        System.out.print("Commande (z/s/q/d/x) : ");
+        String cmd = sc.next();
+        if (cmd.equals("x")) break;
+        if (cmd.length() != 1) continue;
+        char dir = cmd.charAt(0);
+
+        if (dir == 'z' || dir == 's' || dir == 'q' || dir == 'd') {
+            int jx = -1, jy = -1;
+            for (int i = 0; i < grille.length; i++) {
+                for (int j = 0; j < grille[i].length; j++) {
+                    if (grille[i][j] == JOUEUR) {
+                        jx = i; jy = j;
+                    }
+                }
+            }
+            if (jx != -1 && deplacementValide(grille, jx, jy, dir)) {
+                deplacerJoueur(grille, dir);
+                mouvements++;
+            } else {
+                System.out.println("Déplacement invalide.");
+            }
+        } else {
+            System.out.println("Commande invalide.");
+        }
+    }
+    sc.close();
+}
+
+
+
+
+
+
     static void resoudreDFS(char[][] grille) { }
+
+
+
+
+
 
     // ==================== PARTIE AXELLE — SOLVEUR ====================
     static class State {
