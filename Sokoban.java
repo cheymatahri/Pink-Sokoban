@@ -25,7 +25,6 @@ public class Sokoban {
     // ==================== MAIN ====================
     public static void main(String[] args) {
         menu();
-
     }
 
     // ==================== PARTIE AXELLE — MENU ====================
@@ -336,6 +335,74 @@ static void jouer() {
         return true;
     }
 
+    static State etatSuivant(State s, char dir, char[][] modele) {
+        // Copier la grille du modèle (grille originale)
+        char[][] grille = new char[modele.length][];
+        for (int i = 0; i < modele.length; i++) {
+            grille[i] = modele[i].clone();
+        }
+
+
+        grille[s.joueurX][s.joueurY] = LIBRE;
+
+
+        for (int i = 0; i < s.caisses.length; i++) {
+            int cx = s.caisses[i][0];
+            int cy = s.caisses[i][1];
+            if (grille[cx][cy] == OBJECTIF || grille[cx][cy] == CAISSE_OK) {
+                grille[cx][cy] = CAISSE_OK;
+            } else {
+                grille[cx][cy] = CAISSE;
+            }
+        }
+
+        grille[s.joueurX][s.joueurY] = JOUEUR;
+
+
+        int dx = 0, dy = 0;
+        switch (dir) {
+            case 'z': dx = -1; break;
+            case 's': dx = 1; break;
+            case 'q': dy = -1; break;
+            case 'd': dy = 1; break;
+            default: return null;
+        }
+
+        int nx = s.joueurX + dx;
+        int ny = s.joueurY + dy;
+
+
+        if (nx < 0 || nx >= grille.length || ny < 0 || ny >= grille[0].length) return null;
+
+
+        if (grille[nx][ny] == MUR) return null;
+
+
+        State nouveau = s.copie();
+
+
+        if (grille[nx][ny] == CAISSE || grille[nx][ny] == CAISSE_OK) {
+            int dx2 = nx + dx;
+            int dy2 = ny + dy;
+            if (dx2 < 0 || dx2 >= grille.length || dy2 < 0 || dy2 >= grille[0].length) return null;
+            if (grille[dx2][dy2] == MUR || grille[dx2][dy2] == CAISSE || grille[dx2][dy2] == CAISSE_OK) return null;
+
+
+            for (int i = 0; i < nouveau.caisses.length; i++) {
+                if (nouveau.caisses[i][0] == nx && nouveau.caisses[i][1] == ny) {
+                    nouveau.caisses[i][0] = dx2;
+                    nouveau.caisses[i][1] = dy2;
+                    break;
+                }
+            }
+        }
+
+        nouveau.joueurX = nx;
+        nouveau.joueurY = ny;
+
+        return nouveau;
+    }
+
     static void resoudreBFS(char[][] grille) {
 
         int jx = -1, jy = -1;
@@ -370,14 +437,12 @@ static void jouer() {
 
         State etatInitial = new State(jx, jy, caisses);
 
-
         File file = new File(10000);
         EnsembleEtats visites = new EnsembleEtats(10000);
         file.enqueue(etatInitial);
         visites.ajouter(etatInitial);
 
         int etatsExplores = 0;
-
 
         while (!file.isEmpty()) {
             State courant = file.dequeue();
@@ -389,8 +454,16 @@ static void jouer() {
                 return;
             }
 
-            // TODO J4 : générer les mouvements possibles et les ajouter à la file
+            char[] directions = {'z', 's', 'q', 'd'};
+            for (int i = 0; i < directions.length; i++) {
+                State suivant = etatSuivant(courant, directions[i], grille);
+                if (suivant != null && !visites.contient(suivant)) {
+                    visites.ajouter(suivant);
+                    file.enqueue(suivant);
+                }
+            }
         }
+
         System.out.println("BFS : pas de solution trouvée");
         System.out.println("États explorés : " + etatsExplores);
     }
