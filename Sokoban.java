@@ -23,9 +23,9 @@ public class Sokoban {
     };
 
     // ==================== MAIN ====================
-    public static void main(String[] args) {
-        menu();
-    }
+public static void main(String[] args) {
+    menu();
+}
 
     // ==================== PARTIE AXELLE — MENU ====================
     static void menu() {
@@ -77,154 +77,182 @@ public class Sokoban {
         return grille;
     }
 
-
-
-
-
-
-
-
-static boolean deplacementValide(char[][] grille, int x, int y, char dir) {
-    int nx = x, ny = y;
-    switch (dir) {
-        case 'z': nx = x - 1; break;
-        case 's': nx = x + 1; break;
-        case 'q': ny = y - 1; break;
-        case 'd': ny = y + 1; break;
-        default: return false;
+    static boolean deplacementValide(char[][] grille, int x, int y, char dir) {
+        int nx = x, ny = y;
+        switch (dir) {
+            case 'z': nx = x - 1; break;
+            case 's': nx = x + 1; break;
+            case 'q': ny = y - 1; break;
+            case 'd': ny = y + 1; break;
+            default: return false;
+        }
+        if (nx < 0 || nx >= grille.length || ny < 0 || ny >= grille[0].length) return false;
+        if (grille[nx][ny] == MUR) return false;
+        if (grille[nx][ny] == CAISSE || grille[nx][ny] == CAISSE_OK) {
+            return peutPousser(grille, x, y, dir);
+        }
+        return true;
     }
-    if (nx < 0 || nx >= grille.length || ny < 0 || ny >= grille[0].length) return false;
-    if (grille[nx][ny] == MUR) return false;
-    if (grille[nx][ny] == CAISSE || grille[nx][ny] == CAISSE_OK) {
-        return peutPousser(grille, x, y, dir);
-    }
-    return true;
-}
 
-static boolean peutPousser(char[][] grille, int x, int y, char dir) {
-    int cx = x, cy = y;
-    switch (dir) {
-        case 'z': cx = x - 1; break;
-        case 's': cx = x + 1; break;
-        case 'q': cy = y - 1; break;
-        case 'd': cy = y + 1; break;
-        default: return false;
+    static boolean peutPousser(char[][] grille, int x, int y, char dir) {
+        int cx = x, cy = y;
+        switch (dir) {
+            case 'z': cx = x - 1; break;
+            case 's': cx = x + 1; break;
+            case 'q': cy = y - 1; break;
+            case 'd': cy = y + 1; break;
+            default: return false;
+        }
+        int dx = cx, dy = cy;
+        switch (dir) {
+            case 'z': dx = cx - 1; break;
+            case 's': dx = cx + 1; break;
+            case 'q': dy = cy - 1; break;
+            case 'd': dy = cy + 1; break;
+        }
+        if (dx < 0 || dx >= grille.length || dy < 0 || dy >= grille[0].length) return false;
+        return grille[dx][dy] != MUR && grille[dx][dy] != CAISSE && grille[dx][dy] != CAISSE_OK;
     }
-    int dx = cx, dy = cy;
-    switch (dir) {
-        case 'z': dx = cx - 1; break;
-        case 's': dx = cx + 1; break;
-        case 'q': dy = cy - 1; break;
-        case 'd': dy = cy + 1; break;
-    }
-    if (dx < 0 || dx >= grille.length || dy < 0 || dy >= grille[0].length) return false;
-    return grille[dx][dy] != MUR && grille[dx][dy] != CAISSE && grille[dx][dy] != CAISSE_OK;
-}
 
-static void deplacerCaisse(char[][] grille, int x, int y, char dir) {
-    int cx = x, cy = y;
-    switch (dir) {
-        case 'z': cx = x - 1; break;
-        case 's': cx = x + 1; break;
-        case 'q': cy = y - 1; break;
-        case 'd': cy = y + 1; break;
-    }
-    int dx = cx, dy = cy;
-    switch (dir) {
-        case 'z': dx = cx - 1; break;
-        case 's': dx = cx + 1; break;
-        case 'q': dy = cy - 1; break;
-        case 'd': dy = cy + 1; break;
-    }
-    if (grille[dx][dy] == OBJECTIF) {
-        grille[dx][dy] = CAISSE_OK;
-    } else {
-        grille[dx][dy] = CAISSE;
-    }
-    if (grille[cx][cy] == CAISSE_OK) {
-        grille[cx][cy] = OBJECTIF;
-    } else {
-        grille[cx][cy] = LIBRE;
-    }
-}
-
-static void deplacerJoueur(char[][] grille, char dir) {
-    int x = -1, y = -1;
-    for (int i = 0; i < grille.length; i++) {
-        for (int j = 0; j < grille[i].length; j++) {
-            if (grille[i][j] == JOUEUR) {
-                x = i; y = j;
-            }
+    static void deplacerCaisse(char[][] grille, int x, int y, char dir) {
+        int cx = x, cy = y;
+        switch (dir) {
+            case 'z': cx = x - 1; break;
+            case 's': cx = x + 1; break;
+            case 'q': cy = y - 1; break;
+            case 'd': cy = y + 1; break;
+        }
+        int dx = cx, dy = cy;
+        switch (dir) {
+            case 'z': dx = cx - 1; break;
+            case 's': dx = cx + 1; break;
+            case 'q': dy = cy - 1; break;
+            case 'd': dy = cy + 1; break;
+        }
+        if (grille[dx][dy] == OBJECTIF) {
+            grille[dx][dy] = CAISSE_OK;
+        } else {
+            grille[dx][dy] = CAISSE;
+        }
+        if (grille[cx][cy] == CAISSE_OK) {
+            grille[cx][cy] = OBJECTIF;
+        } else {
+            grille[cx][cy] = LIBRE;
         }
     }
-    if (x == -1) return;
-    if (!deplacementValide(grille, x, y, dir)) return;
 
-    int nx = x, ny = y;
-    switch (dir) {
-        case 'z': nx = x - 1; break;
-        case 's': nx = x + 1; break;
-        case 'q': ny = y - 1; break;
-        case 'd': ny = y + 1; break;
-    }
-    if (grille[nx][ny] == CAISSE || grille[nx][ny] == CAISSE_OK) {
-        deplacerCaisse(grille, x, y, dir);
-    }
-    grille[x][y] = LIBRE;
-    grille[nx][ny] = JOUEUR;
-}
-
-static boolean partieTerminee(char[][] grille) {
-    for (int i = 0; i < grille.length; i++) {
-        for (int j = 0; j < grille[i].length; j++) {
-            if (grille[i][j] == CAISSE) return false;
-        }
-    }
-    return true;
-}
-
-static void jouer() {
-    char[][] grille = chargerNiveau(1);
-    Scanner sc = new Scanner(System.in);
-    int mouvements = 0;
-
-    while (true) {
-        afficherGrille(grille);
-        if (partieTerminee(grille)) {
-            System.out.println("Victoire !");
-            System.out.println("Nombre de mouvements : " + mouvements);
-            break;
-        }
-        System.out.print("Commande (z/s/q/d/x) : ");
-        String cmd = sc.next();
-        if (cmd.equals("x")) break;
-        if (cmd.length() != 1) continue;
-        char dir = cmd.charAt(0);
-
-        if (dir == 'z' || dir == 's' || dir == 'q' || dir == 'd') {
-            int jx = -1, jy = -1;
-            for (int i = 0; i < grille.length; i++) {
-                for (int j = 0; j < grille[i].length; j++) {
-                    if (grille[i][j] == JOUEUR) {
-                        jx = i; jy = j;
-                    }
+    static void deplacerJoueur(char[][] grille, char dir) {
+        int x = -1, y = -1;
+        for (int i = 0; i < grille.length; i++) {
+            for (int j = 0; j < grille[i].length; j++) {
+                if (grille[i][j] == JOUEUR) {
+                    x = i; y = j;
                 }
             }
-            if (jx != -1 && deplacementValide(grille, jx, jy, dir)) {
-                deplacerJoueur(grille, dir);
-                mouvements++;
-            } else {
-                System.out.println("Déplacement invalide.");
-            }
-        } else {
-            System.out.println("Commande invalide.");
         }
+        if (x == -1) return;
+        if (!deplacementValide(grille, x, y, dir)) return;
+
+        int nx = x, ny = y;
+        switch (dir) {
+            case 'z': nx = x - 1; break;
+            case 's': nx = x + 1; break;
+            case 'q': ny = y - 1; break;
+            case 'd': ny = y + 1; break;
+        }
+        if (grille[nx][ny] == CAISSE || grille[nx][ny] == CAISSE_OK) {
+            deplacerCaisse(grille, x, y, dir);
+        }
+        grille[x][y] = LIBRE;
+        grille[nx][ny] = JOUEUR;
     }
-    sc.close();
-}
 
-    static void resoudreDFS(char[][] grille) { }
+    static boolean partieTerminee(char[][] grille) {
+        for (int i = 0; i < grille.length; i++) {
+            for (int j = 0; j < grille[i].length; j++) {
+                if (grille[i][j] == CAISSE) return false;
+            }
+        }
+        return true;
+    }
 
+    static void jouer() {
+        char[][] grille = chargerNiveau(1);
+        Scanner sc = new Scanner(System.in);
+        int mouvements = 0;
+
+        while (true) {
+            afficherGrille(grille);
+            if (partieTerminee(grille)) {
+                System.out.println("Victoire !");
+                System.out.println("Nombre de mouvements : " + mouvements);
+                break;
+            }
+            System.out.print("Commande (z/s/q/d/x) : ");
+            String cmd = sc.next();
+            if (cmd.equals("x")) break;
+            if (cmd.length() != 1) continue;
+            char dir = cmd.charAt(0);
+
+            if (dir == 'z' || dir == 's' || dir == 'q' || dir == 'd') {
+                int jx = -1, jy = -1;
+                for (int i = 0; i < grille.length; i++) {
+                    for (int j = 0; j < grille[i].length; j++) {
+                        if (grille[i][j] == JOUEUR) {
+                            jx = i; jy = j;
+                        }
+                    }
+                }
+                if (jx != -1 && deplacementValide(grille, jx, jy, dir)) {
+                    deplacerJoueur(grille, dir);
+                    mouvements++;
+                } else {
+                    System.out.println("Déplacement invalide.");
+                }
+            } else {
+                System.out.println("Commande invalide.");
+            }
+        }
+        sc.close();
+    }
+
+    static void resoudreDFS(char[][] grille) {
+        // 1. Extraire l'état initial
+        int jx = -1, jy = -1;
+        for (int i = 0; i < grille.length; i++) {
+            for (int j = 0; j < grille[i].length; j++) {
+                if (grille[i][j] == JOUEUR) {
+                    jx = i; jy = j;
+                }
+            }
+        }
+
+        int nbCaisses = 0;
+        for (int i = 0; i < grille.length; i++) {
+            for (int j = 0; j < grille[i].length; j++) {
+                if (grille[i][j] == CAISSE || grille[i][j] == CAISSE_OK) {
+                    nbCaisses++;
+                }
+            }
+        }
+
+        int[][] caisses = new int[nbCaisses][2];
+        int k = 0;
+        for (int i = 0; i < grille.length; i++) {
+            for (int j = 0; j < grille[i].length; j++) {
+                if (grille[i][j] == CAISSE || grille[i][j] == CAISSE_OK) {
+                    caisses[k][0] = i;
+                    caisses[k][1] = j;
+                    k++;
+                }
+            }
+        }
+
+        State etatInitial = new State(jx, jy, caisses);
+        System.out.println("DFS : état initial créé");
+        System.out.println("Joueur en (" + jx + ", " + jy + ")");
+        System.out.println("Nombre de caisses : " + nbCaisses);
+    }
 
     // ==================== PARTIE AXELLE — SOLVEUR ====================
     static class State {
@@ -295,6 +323,38 @@ static void jouer() {
             return taille;
         }
     }
+   // ----- Pile (Cheyma) -----
+    static class Pile {
+        private State[] tab;
+        private int sommet;
+
+        Pile(int capacite) {
+            tab = new State[capacite];
+            sommet = -1;
+        }
+
+        void push(State s) {
+            if (sommet + 1 < tab.length) {
+                sommet++;
+                tab[sommet] = s;
+            }
+        }
+
+        State pop() {
+            if (sommet == -1) return null;
+            State s = tab[sommet];
+            sommet--;
+            return s;
+        }
+
+        boolean isEmpty() {
+            return sommet == -1;
+        }
+
+        int size() {
+            return sommet + 1;
+        }
+    }
 
     static class EnsembleEtats {
         private State[] tab;
@@ -336,15 +396,12 @@ static void jouer() {
     }
 
     static State etatSuivant(State s, char dir, char[][] modele) {
-        // Copier la grille du modèle (grille originale)
         char[][] grille = new char[modele.length][];
         for (int i = 0; i < modele.length; i++) {
             grille[i] = modele[i].clone();
         }
 
-
         grille[s.joueurX][s.joueurY] = LIBRE;
-
 
         for (int i = 0; i < s.caisses.length; i++) {
             int cx = s.caisses[i][0];
@@ -358,7 +415,6 @@ static void jouer() {
 
         grille[s.joueurX][s.joueurY] = JOUEUR;
 
-
         int dx = 0, dy = 0;
         switch (dir) {
             case 'z': dx = -1; break;
@@ -371,22 +427,16 @@ static void jouer() {
         int nx = s.joueurX + dx;
         int ny = s.joueurY + dy;
 
-
         if (nx < 0 || nx >= grille.length || ny < 0 || ny >= grille[0].length) return null;
-
-
         if (grille[nx][ny] == MUR) return null;
 
-
         State nouveau = s.copie();
-
 
         if (grille[nx][ny] == CAISSE || grille[nx][ny] == CAISSE_OK) {
             int dx2 = nx + dx;
             int dy2 = ny + dy;
             if (dx2 < 0 || dx2 >= grille.length || dy2 < 0 || dy2 >= grille[0].length) return null;
             if (grille[dx2][dy2] == MUR || grille[dx2][dy2] == CAISSE || grille[dx2][dy2] == CAISSE_OK) return null;
-
 
             for (int i = 0; i < nouveau.caisses.length; i++) {
                 if (nouveau.caisses[i][0] == nx && nouveau.caisses[i][1] == ny) {
@@ -404,7 +454,6 @@ static void jouer() {
     }
 
     static void resoudreBFS(char[][] grille) {
-
         int jx = -1, jy = -1;
         for (int i = 0; i < grille.length; i++) {
             for (int j = 0; j < grille[i].length; j++) {
