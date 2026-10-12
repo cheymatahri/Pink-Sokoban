@@ -25,6 +25,7 @@ public class Sokoban {
     // ==================== MAIN ====================
     public static void main(String[] args) {
         menu();
+
     }
 
     // ==================== PARTIE AXELLE — MENU ====================
@@ -324,7 +325,19 @@ static void jouer() {
         }
     }
 
+    static boolean estVictoire(State s, char[][] grille) {
+        for (int i = 0; i < s.caisses.length; i++) {
+            int cx = s.caisses[i][0];
+            int cy = s.caisses[i][1];
+            if (grille[cx][cy] != OBJECTIF && grille[cx][cy] != CAISSE_OK) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     static void resoudreBFS(char[][] grille) {
+
         int jx = -1, jy = -1;
         for (int i = 0; i < grille.length; i++) {
             for (int j = 0; j < grille[i].length; j++) {
@@ -356,9 +369,30 @@ static void jouer() {
         }
 
         State etatInitial = new State(jx, jy, caisses);
-        System.out.println("BFS : état initial créé");
-        System.out.println("Joueur en (" + jx + ", " + jy + ")");
-        System.out.println("Nombre de caisses : " + nbCaisses);
+
+
+        File file = new File(10000);
+        EnsembleEtats visites = new EnsembleEtats(10000);
+        file.enqueue(etatInitial);
+        visites.ajouter(etatInitial);
+
+        int etatsExplores = 0;
+
+
+        while (!file.isEmpty()) {
+            State courant = file.dequeue();
+            etatsExplores++;
+
+            if (estVictoire(courant, grille)) {
+                System.out.println("BFS : solution trouvée !");
+                System.out.println("États explorés : " + etatsExplores);
+                return;
+            }
+
+            // TODO J4 : générer les mouvements possibles et les ajouter à la file
+        }
+        System.out.println("BFS : pas de solution trouvée");
+        System.out.println("États explorés : " + etatsExplores);
     }
 
     static void comparerDFS_BFS(char[][] grille) {
