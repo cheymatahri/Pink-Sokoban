@@ -249,9 +249,38 @@ public static void main(String[] args) {
         }
 
         State etatInitial = new State(jx, jy, caisses);
-        System.out.println("DFS : état initial créé");
-        System.out.println("Joueur en (" + jx + ", " + jy + ")");
-        System.out.println("Nombre de caisses : " + nbCaisses);
+
+        // 2. Initialiser la pile et l'ensemble des visités
+        Pile pile = new Pile(10000);
+        EnsembleEtats visites = new EnsembleEtats(10000);
+        pile.push(etatInitial);
+        visites.ajouter(etatInitial);
+
+        int etatsExplores = 0;
+
+        // 3. Boucle DFS
+        while (!pile.isEmpty()) {
+            State courant = pile.pop();
+            etatsExplores++;
+
+            if (estVictoire(courant, grille)) {
+                System.out.println("DFS : solution trouvée !");
+                System.out.println("États explorés : " + etatsExplores);
+                return;
+            }
+
+            char[] directions = {'z', 's', 'q', 'd'};
+            for (int i = 0; i < directions.length; i++) {
+                State suivant = etatSuivant(courant, directions[i], grille);
+                if (suivant != null && !visites.contient(suivant)) {
+                    visites.ajouter(suivant);
+                    pile.push(suivant);
+                }
+            }
+        }
+
+        System.out.println("DFS : pas de solution trouvée");
+        System.out.println("États explorés : " + etatsExplores);
     }
 
     // ==================== PARTIE AXELLE — SOLVEUR ====================
@@ -323,7 +352,8 @@ public static void main(String[] args) {
             return taille;
         }
     }
-   // ----- Pile (Cheyma) -----
+
+    // ----- Pile (Cheyma) -----
     static class Pile {
         private State[] tab;
         private int sommet;
