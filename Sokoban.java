@@ -39,9 +39,13 @@ static final String[][] NIVEAUX = {
                 "##########"
         }
 };
+
+
 public static void main(String[] args) {
     menu();
 }
+
+
 
     // ==================== PARTIE AXELLE — MENU ====================
     static void menu() {
