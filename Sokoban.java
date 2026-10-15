@@ -414,6 +414,16 @@ public static void main(String[] args) {
         }
     }
 
+    static class Resultat {
+        boolean trouve;
+        int etatsExplores;
+
+        Resultat(boolean t, int e) {
+            this.trouve = t;
+            this.etatsExplores = e;
+        }
+    }
+
     static boolean estVictoire(State s, char[][] grille) {
         for (int i = 0; i < s.caisses.length; i++) {
             int cx = s.caisses[i][0];
@@ -546,8 +556,120 @@ public static void main(String[] args) {
         System.out.println("BFS : pas de solution trouvée");
         System.out.println("États explorés : " + etatsExplores);
     }
+    static Resultat resoudreBFSResultat(char[][] grille) {
+        int jx = -1, jy = -1;
+        for (int i = 0; i < grille.length; i++) {
+            for (int j = 0; j < grille[i].length; j++) {
+                if (grille[i][j] == JOUEUR) { jx = i; jy = j; }
+            }
+        }
+        int nbCaisses = 0;
+        for (int i = 0; i < grille.length; i++) {
+            for (int j = 0; j < grille[i].length; j++) {
+                if (grille[i][j] == CAISSE || grille[i][j] == CAISSE_OK) nbCaisses++;
+            }
+        }
+        int[][] caisses = new int[nbCaisses][2];
+        int k = 0;
+        for (int i = 0; i < grille.length; i++) {
+            for (int j = 0; j < grille[i].length; j++) {
+                if (grille[i][j] == CAISSE || grille[i][j] == CAISSE_OK) {
+                    caisses[k][0] = i; caisses[k][1] = j; k++;
+                }
+            }
+        }
+        State etatInitial = new State(jx, jy, caisses);
+        File file = new File(10000);
+        EnsembleEtats visites = new EnsembleEtats(10000);
+        file.enqueue(etatInitial);
+        visites.ajouter(etatInitial);
+        int etatsExplores = 0;
+
+        while (!file.isEmpty()) {
+            State courant = file.dequeue();
+            etatsExplores++;
+            if (estVictoire(courant, grille)) {
+                return new Resultat(true, etatsExplores);
+            }
+            char[] directions = {'z', 's', 'q', 'd'};
+            for (int i = 0; i < directions.length; i++) {
+                State suivant = etatSuivant(courant, directions[i], grille);
+                if (suivant != null && !visites.contient(suivant)) {
+                    visites.ajouter(suivant);
+                    file.enqueue(suivant);
+                }
+            }
+        }
+        return new Resultat(false, etatsExplores);
+    }
+
+    static Resultat resoudreDFSResultat(char[][] grille) {
+        int jx = -1, jy = -1;
+        for (int i = 0; i < grille.length; i++) {
+            for (int j = 0; j < grille[i].length; j++) {
+                if (grille[i][j] == JOUEUR) { jx = i; jy = j; }
+            }
+        }
+        int nbCaisses = 0;
+        for (int i = 0; i < grille.length; i++) {
+            for (int j = 0; j < grille[i].length; j++) {
+                if (grille[i][j] == CAISSE || grille[i][j] == CAISSE_OK) nbCaisses++;
+            }
+        }
+        int[][] caisses = new int[nbCaisses][2];
+        int k = 0;
+        for (int i = 0; i < grille.length; i++) {
+            for (int j = 0; j < grille[i].length; j++) {
+                if (grille[i][j] == CAISSE || grille[i][j] == CAISSE_OK) {
+                    caisses[k][0] = i; caisses[k][1] = j; k++;
+                }
+            }
+        }
+        State etatInitial = new State(jx, jy, caisses);
+        Pile pile = new Pile(10000);
+        EnsembleEtats visites = new EnsembleEtats(10000);
+        pile.push(etatInitial);
+        visites.ajouter(etatInitial);
+        int etatsExplores = 0;
+
+        while (!pile.isEmpty()) {
+            State courant = pile.pop();
+            etatsExplores++;
+            if (estVictoire(courant, grille)) {
+                return new Resultat(true, etatsExplores);
+            }
+            char[] directions = {'z', 's', 'q', 'd'};
+            for (int i = 0; i < directions.length; i++) {
+                State suivant = etatSuivant(courant, directions[i], grille);
+                if (suivant != null && !visites.contient(suivant)) {
+                    visites.ajouter(suivant);
+                    pile.push(suivant);
+                }
+            }
+        }
+        return new Resultat(false, etatsExplores);
+    }
 
     static void comparerDFS_BFS(char[][] grille) {
-        System.out.println("Comparaison DFS/BFS : à implémenter");
+        System.out.println("========== COMPARAISON ==========");
+
+        long debutDFS = System.currentTimeMillis();
+        Resultat resDFS = resoudreDFSResultat(grille);
+        long finDFS = System.currentTimeMillis();
+
+        long debutBFS = System.currentTimeMillis();
+        Resultat resBFS = resoudreBFSResultat(grille);
+        long finBFS = System.currentTimeMillis();
+
+        System.out.println("DFS");
+        System.out.println("Solution trouvée : " + (resDFS.trouve ? "oui" : "non"));
+        System.out.println("États explorés : " + resDFS.etatsExplores);
+        System.out.println("Temps : " + (finDFS - debutDFS) + " ms");
+        System.out.println();
+
+        System.out.println("BFS");
+        System.out.println("Solution trouvée : " + (resBFS.trouve ? "oui" : "non"));
+        System.out.println("États explorés : " + resBFS.etatsExplores);
+        System.out.println("Temps : " + (finBFS - debutBFS) + " ms");
     }
 }
