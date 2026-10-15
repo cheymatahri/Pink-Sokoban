@@ -10,17 +10,35 @@ public class Sokoban {
     static final char OBJECTIF = '.';
     static final char CAISSE_OK= '*';
 
-    static final String[][] NIVEAUX = {
-            { // Niveau 1
-                    "##########",
-                    "#        #",
-                    "# @$ .   #",
-                    "#        #",
-                    "#        #",
-                    "#        #",
-                    "##########"
-            }
-    };
+static final String[][] NIVEAUX = {
+        { // Niveau 1 — poussée horizontale (existant)
+                "##########",
+                "#        #",
+                "# @$ .   #",
+                "#        #",
+                "#        #",
+                "#        #",
+                "##########"
+        },
+        { // Niveau 2 — poussée verticale avec détour
+                "##########",
+                "#        #",
+                "# .      #",
+                "#        #",
+                "# $ @    #",
+                "#        #",
+                "##########"
+        },
+        { // Niveau 3 — deux caisses, symétrique
+                "##########",
+                "#        #",
+                "#  .  .  #",
+                "#        #",
+                "#  $  $  #",
+                "#   @    #",
+                "##########"
+        }
+};
 
     // ==================== MAIN ====================
     public static void main(String[] args) {
