@@ -28,72 +28,71 @@ public class Sokoban {
     }
 
     // ==================== PARTIE AXELLE — MENU ====================
+    static void menu() {
+        Scanner sc = new Scanner(System.in);
+        int choix = 0;
 
-        static void menu() {
-            Scanner sc = new Scanner(System.in);
-            int choix = 0;
+        while (choix != 8) {
+            System.out.println("======== SOKOBAN ========");
+            System.out.println("1. Jouer au niveau 1");
+            System.out.println("2. Jouer au niveau 2");
+            System.out.println("3. Jouer au niveau 3");
+            System.out.println("4. Résoudre automatiquement (DFS)");
+            System.out.println("5. Résoudre automatiquement (BFS)");
+            System.out.println("6. Comparer DFS / BFS");
+            System.out.println("7. Afficher les règles");
+            System.out.println("8. Quitter");
+            System.out.print("Votre choix : ");
 
-            while (choix != 8) {
-                System.out.println("======== SOKOBAN ========");
-                System.out.println("1. Jouer au niveau 1");
-                System.out.println("2. Jouer au niveau 2");
-                System.out.println("3. Jouer au niveau 3");
-                System.out.println("4. Résoudre automatiquement (DFS)");
-                System.out.println("5. Résoudre automatiquement (BFS)");
-                System.out.println("6. Comparer DFS / BFS");
-                System.out.println("7. Afficher les règles");
-                System.out.println("8. Quitter");
-                System.out.print("Votre choix : ");
-
-                if (sc.hasNextInt()) {
-                    choix = sc.nextInt();
-                } else {
-                    sc.next();
-                    choix = 0;
-                }
-
-                char[][] grille;
-                switch (choix) {
-                    case 1:
-                        grille = chargerNiveau(1);
-                        afficherGrille(grille);
-                        break;
-                    case 2:
-                        grille = chargerNiveau(2);
-                        afficherGrille(grille);
-                        break;
-                    case 3:
-                        grille = chargerNiveau(3);
-                        afficherGrille(grille);
-                        break;
-                    case 4:
-                        grille = chargerNiveau(1);
-                        resoudreDFS(grille);
-                        break;
-                    case 5:
-                        grille = chargerNiveau(1);
-                        resoudreBFS(grille);
-                        break;
-                    case 6:
-                        grille = chargerNiveau(1);
-                        comparerDFS_BFS(grille);
-                        break;
-                    case 7:
-                        System.out.println("Règles :");
-                        System.out.println("- Déplacez le joueur avec z/s/q/d");
-                        System.out.println("- Poussez les caisses $ sur les objectifs .");
-                        System.out.println("- Tapez x pour quitter une partie");
-                        break;
-                    case 8:
-                        System.out.println("Au revoir !");
-                        break;
-                    default:
-                        System.out.println("Choix invalide.");
-                }
+            if (sc.hasNextInt()) {
+                choix = sc.nextInt();
+            } else {
+                sc.next();
+                choix = 0;
             }
 
-            sc.close();
+            char[][] grille;
+            switch (choix) {
+                case 1:
+                    grille = chargerNiveau(1);
+                    afficherGrille(grille);
+                    break;
+                case 2:
+                    grille = chargerNiveau(2);
+                    afficherGrille(grille);
+                    break;
+                case 3:
+                    grille = chargerNiveau(3);
+                    afficherGrille(grille);
+                    break;
+                case 4:
+                    grille = chargerNiveau(1);
+                    resoudreDFS(grille);
+                    break;
+                case 5:
+                    grille = chargerNiveau(1);
+                    resoudreBFS(grille);
+                    break;
+                case 6:
+                    grille = chargerNiveau(1);
+                    comparerDFS_BFS(grille);
+                    break;
+                case 7:
+                    System.out.println("Règles :");
+                    System.out.println("- Déplacez le joueur avec z/s/q/d");
+                    System.out.println("- Poussez les caisses $ sur les objectifs .");
+                    System.out.println("- Tapez x pour quitter une partie");
+                    break;
+                case 8:
+                    System.out.println("Au revoir !");
+                    break;
+                default:
+                    System.out.println("Choix invalide.");
+            }
         }
+
+        sc.close();
+    }
 
     // ==================== PARTIE CHEYMA — JEU ====================
     static void afficherGrille(char[][] grille) {
@@ -299,6 +298,8 @@ public class Sokoban {
 
             if (estVictoire(courant, grille)) {
                 System.out.println("DFS : solution trouvée !");
+                System.out.println("Solution : " + courant.chemin);
+                System.out.println("Nombre de mouvements : " + courant.chemin.length());
                 System.out.println("États explorés : " + etatsExplores);
                 return;
             }
@@ -321,11 +322,13 @@ public class Sokoban {
     static class State {
         int joueurX, joueurY;
         int[][] caisses;
+        String chemin;
 
         State(int jx, int jy, int[][] c) {
             this.joueurX = jx;
             this.joueurY = jy;
             this.caisses = c;
+            this.chemin = "";
         }
 
         boolean equals(State autre) {
@@ -345,7 +348,9 @@ public class Sokoban {
                 copieCaisses[i][0] = caisses[i][0];
                 copieCaisses[i][1] = caisses[i][1];
             }
-            return new State(joueurX, joueurY, copieCaisses);
+            State s = new State(joueurX, joueurY, copieCaisses);
+            s.chemin = this.chemin;
+            return s;
         }
     }
 
@@ -451,10 +456,12 @@ public class Sokoban {
     static class Resultat {
         boolean trouve;
         int etatsExplores;
+        String chemin;
 
-        Resultat(boolean t, int e) {
+        Resultat(boolean t, int e, String c) {
             this.trouve = t;
             this.etatsExplores = e;
+            this.chemin = c;
         }
     }
 
@@ -523,6 +530,7 @@ public class Sokoban {
 
         nouveau.joueurX = nx;
         nouveau.joueurY = ny;
+        nouveau.chemin = s.chemin + dir;
 
         return nouveau;
     }
@@ -573,6 +581,8 @@ public class Sokoban {
 
             if (estVictoire(courant, grille)) {
                 System.out.println("BFS : solution trouvée !");
+                System.out.println("Solution : " + courant.chemin);
+                System.out.println("Nombre de mouvements : " + courant.chemin.length());
                 System.out.println("États explorés : " + etatsExplores);
                 return;
             }
@@ -624,7 +634,7 @@ public class Sokoban {
             State courant = file.dequeue();
             etatsExplores++;
             if (estVictoire(courant, grille)) {
-                return new Resultat(true, etatsExplores);
+                return new Resultat(true, etatsExplores, courant.chemin);
             }
             char[] directions = {'z', 's', 'q', 'd'};
             for (int i = 0; i < directions.length; i++) {
@@ -635,7 +645,7 @@ public class Sokoban {
                 }
             }
         }
-        return new Resultat(false, etatsExplores);
+        return new Resultat(false, etatsExplores, "");
     }
 
     static Resultat resoudreDFSResultat(char[][] grille) {
@@ -671,7 +681,7 @@ public class Sokoban {
             State courant = pile.pop();
             etatsExplores++;
             if (estVictoire(courant, grille)) {
-                return new Resultat(true, etatsExplores);
+                return new Resultat(true, etatsExplores, courant.chemin);
             }
             char[] directions = {'z', 's', 'q', 'd'};
             for (int i = 0; i < directions.length; i++) {
@@ -682,7 +692,7 @@ public class Sokoban {
                 }
             }
         }
-        return new Resultat(false, etatsExplores);
+        return new Resultat(false, etatsExplores, "");
     }
 
     static void comparerDFS_BFS(char[][] grille) {
@@ -698,12 +708,20 @@ public class Sokoban {
 
         System.out.println("DFS");
         System.out.println("Solution trouvée : " + (resDFS.trouve ? "oui" : "non"));
+        if (resDFS.trouve) {
+            System.out.println("Solution : " + resDFS.chemin);
+            System.out.println("Nombre de mouvements : " + resDFS.chemin.length());
+        }
         System.out.println("États explorés : " + resDFS.etatsExplores);
         System.out.println("Temps : " + (finDFS - debutDFS) + " ms");
         System.out.println();
 
         System.out.println("BFS");
         System.out.println("Solution trouvée : " + (resBFS.trouve ? "oui" : "non"));
+        if (resBFS.trouve) {
+            System.out.println("Solution : " + resBFS.chemin);
+            System.out.println("Nombre de mouvements : " + resBFS.chemin.length());
+        }
         System.out.println("États explorés : " + resBFS.etatsExplores);
         System.out.println("Temps : " + (finBFS - debutBFS) + " ms");
     }
