@@ -23,40 +23,77 @@ public class Sokoban {
     };
 
     // ==================== MAIN ====================
-public static void main(String[] args) {
-    menu();
-}
+    public static void main(String[] args) {
+        menu();
+    }
 
     // ==================== PARTIE AXELLE — MENU ====================
-    static void menu() {
-        Scanner sc = new Scanner(System.in);
-        int choix = 0;
 
-        while (choix != 4) {
-            System.out.println("======== SOKOBAN ========");
-            System.out.println("1. Niveau 1");
-            System.out.println("4. Quitter");
-            System.out.print("Votre choix : ");
+        static void menu() {
+            Scanner sc = new Scanner(System.in);
+            int choix = 0;
 
-            if (sc.hasNextInt()) {
-                choix = sc.nextInt();
-            } else {
-                sc.next();
-                choix = 0;
+            while (choix != 8) {
+                System.out.println("======== SOKOBAN ========");
+                System.out.println("1. Jouer au niveau 1");
+                System.out.println("2. Jouer au niveau 2");
+                System.out.println("3. Jouer au niveau 3");
+                System.out.println("4. Résoudre automatiquement (DFS)");
+                System.out.println("5. Résoudre automatiquement (BFS)");
+                System.out.println("6. Comparer DFS / BFS");
+                System.out.println("7. Afficher les règles");
+                System.out.println("8. Quitter");
+                System.out.print("Votre choix : ");
+
+                if (sc.hasNextInt()) {
+                    choix = sc.nextInt();
+                } else {
+                    sc.next();
+                    choix = 0;
+                }
+
+                char[][] grille;
+                switch (choix) {
+                    case 1:
+                        grille = chargerNiveau(1);
+                        afficherGrille(grille);
+                        break;
+                    case 2:
+                        grille = chargerNiveau(2);
+                        afficherGrille(grille);
+                        break;
+                    case 3:
+                        grille = chargerNiveau(3);
+                        afficherGrille(grille);
+                        break;
+                    case 4:
+                        grille = chargerNiveau(1);
+                        resoudreDFS(grille);
+                        break;
+                    case 5:
+                        grille = chargerNiveau(1);
+                        resoudreBFS(grille);
+                        break;
+                    case 6:
+                        grille = chargerNiveau(1);
+                        comparerDFS_BFS(grille);
+                        break;
+                    case 7:
+                        System.out.println("Règles :");
+                        System.out.println("- Déplacez le joueur avec z/s/q/d");
+                        System.out.println("- Poussez les caisses $ sur les objectifs .");
+                        System.out.println("- Tapez x pour quitter une partie");
+                        break;
+                    case 8:
+                        System.out.println("Au revoir !");
+                        break;
+                    default:
+                        System.out.println("Choix invalide.");
+                }
             }
 
-            if (choix == 1) {
-                char[][] grille = chargerNiveau(1);
-                afficherGrille(grille);
-            } else if (choix == 4) {
-                System.out.println("Au revoir !");
-            } else {
-                System.out.println("Choix invalide.");
-            }
+            sc.close();
         }
-
-        sc.close();
-    }
 
     // ==================== PARTIE CHEYMA — JEU ====================
     static void afficherGrille(char[][] grille) {
@@ -217,7 +254,6 @@ public static void main(String[] args) {
     }
 
     static void resoudreDFS(char[][] grille) {
-        // 1. Extraire l'état initial
         int jx = -1, jy = -1;
         for (int i = 0; i < grille.length; i++) {
             for (int j = 0; j < grille[i].length; j++) {
@@ -250,7 +286,6 @@ public static void main(String[] args) {
 
         State etatInitial = new State(jx, jy, caisses);
 
-        // 2. Initialiser la pile et l'ensemble des visités
         Pile pile = new Pile(10000);
         EnsembleEtats visites = new EnsembleEtats(10000);
         pile.push(etatInitial);
@@ -258,7 +293,6 @@ public static void main(String[] args) {
 
         int etatsExplores = 0;
 
-        // 3. Boucle DFS
         while (!pile.isEmpty()) {
             State courant = pile.pop();
             etatsExplores++;
@@ -556,6 +590,7 @@ public static void main(String[] args) {
         System.out.println("BFS : pas de solution trouvée");
         System.out.println("États explorés : " + etatsExplores);
     }
+
     static Resultat resoudreBFSResultat(char[][] grille) {
         int jx = -1, jy = -1;
         for (int i = 0; i < grille.length; i++) {
